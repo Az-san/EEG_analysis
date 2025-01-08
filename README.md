@@ -53,8 +53,8 @@ ttl_times_ms = raw_data.iloc[5:61, 9].astype(float).values * 1000  # 生デー�
 1. `1_epoch.py` - エポックの切り出し
 2. `2_baseline.py` - ベースライン補正
 3. `3_sort_err_new.py` - EpochをCorrect試行とError試行に振り分ける
-4. `colave.py` - Correct試行とError試行のエポックの加算平均を計算
-5. `5_plot.py` - `colave.py`で計算した加算平均をプロット
+4. `4_colave.py` - Correct試行とError試行のエポックの加算平均を計算
+5. `5_plot.py` - `4_colave.py`で計算した加算平均をプロット
 
 ### Error試行なしの場合（`ros1_ws`の`MS_main.py`で`Errrate=0`に設定した場合）
 以下の順番でスクリプトを実行する。
@@ -62,8 +62,8 @@ ttl_times_ms = raw_data.iloc[5:61, 9].astype(float).values * 1000  # 生デー�
 1. `1_epoch_noerr.py` - エポックの切り出し（Error試行なし）
 2. `2_baseline.py` - ベースライン補正
 3. `3_sort_err_noerr.py` - Correct試行のみに基づいてEpochを振り分ける
-4. `colave.py` - Correct試行のエポックの加算平均を計算
-5. `5_plot_noerr.py` - `colave.py`で計算したCorrect波形をプロット
+4. `4_colave.py` - Correct試行のエポックの加算平均を計算
+5. `5_plot_noerr.py` - `4_colave.py`で計算したCorrect波形をプロット
 
 **注意:**
 - `5_plot_noerr.py`ではCorrect波形しか生成されない
