@@ -152,6 +152,8 @@ for electrode, col_idx in electrodes.items():
             epoch_data = electrode_data[start_idx:end_idx]
             epoch_time = time_data_ms[start_idx:end_idx] / 1000
 
+            epoch_summary_data[electrode].append(epoch_data.tolist())
+
             # ✅ オリジナルサイズのプロット
             plt.figure(figsize=(10, 5))
             plt.plot(epoch_time, epoch_data, label=f'TTL {i+1}')
@@ -170,21 +172,27 @@ for electrode, col_idx in electrodes.items():
             plt.savefig(plot_path, dpi=300)
             plt.close()
 
+
             # ✅ 拡大サイズのプロット
             plt.figure(figsize=(10, 5))
             plt.plot(epoch_time, epoch_data, label=f'TTL {i+1}')
             plt.axvline(ttl / 1000, color='brown', linestyle='--', label='TTL Signal')
             plt.axhline(0, color='black', linestyle='-', linewidth=0.8)
-            plt.xticks(np.arange((ttl - 500) / 1000, (ttl + 500) / 1000 + 0.1, 0.1), fontsize=16)
+
+            # 🟡 横軸のメモリを0.5秒ごとに設定し、縦線を0.1秒ごとに設定
+            plt.xticks(np.arange(ttl / 1000 - 0.5, ttl / 1000 + 0.6, 0.5), fontsize=16)
+            plt.minorticks_on()
+            plt.gca().xaxis.set_minor_locator(plt.MultipleLocator(0.1))
+
             plt.yticks(np.arange(-15, 16, 5), fontsize=16)
             plt.title(f'{electrode} Epoch {i+1}', fontsize=20)
             plt.xlabel('Time [s]', fontsize=20)
             plt.ylabel('Amplitude [μV]', fontsize=20)
             plt.legend(fontsize=18)
-            plt.xlim(ttl / 1000 - 0.5, ttl / 1000 + 1.0)  # 横軸をTTL±1.5秒に設定
-            plt.ylim(-16, 16)  # 縦軸を±15μVに統一
+
+            plt.xlim(ttl / 1000 - 0.5, ttl / 1000 + 1.0)
+            plt.ylim(-16, 16)
             plt.grid(which='both', linestyle='--', linewidth=0.5)
-            plt.minorticks_on()  # 小さいメモリを有効にする
             zoomed_plot_path = os.path.join(zoomed_plot_dir, f'epoch_{i+1}.png')
             plt.savefig(zoomed_plot_path, dpi=300)
             plt.close()
@@ -196,20 +204,16 @@ for electrode, col_idx in electrodes.items():
 summary_output_dir = os.path.join(calc_dir, "epoch_summary")
 os.makedirs(summary_output_dir, exist_ok=True)
 
-# 各エポックデータを統合データに追加
-epoch_summary_data[electrode].append(epoch_data)
-
-# 統合データの保存処理
+# ✅ 統合データの保存処理
 for electrode, data in epoch_summary_data.items():
     if data:
-        summary_df = pd.DataFrame(np.array(data).T)
-        summary_df.columns = [f"Epoch {i+1}" for i in range(summary_df.shape[1])]
+        summary_df = pd.DataFrame(np.array(data).T)  # 転置して右方向にエポックを展開
+        time_column = pd.Series(np.arange(epoch_start, epoch_end), name="TIME")  # TIME列を作成
+        summary_df.insert(0, "TIME", time_column)  # TIME列を1列目に挿入
         summary_csv_path = os.path.join(summary_output_dir, f"{electrode}_epoch_summary.csv")
-
-        summary_df.to_csv(summary_csv_path, index=False, encoding='utf-8-sig')  # 🟡 ここが重要
+        summary_df.to_csv(summary_csv_path, index=False, encoding='utf-8-sig')
         print(f"{electrode} の統合データを {summary_csv_path} に保存しました。")
 
-print("すべての処理が完了しました。")
 
 
 end_time = datetime.now()
