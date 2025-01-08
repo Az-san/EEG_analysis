@@ -60,7 +60,7 @@ root_dir = select_directory("解析のルートディレクトリを選択して
 calc_dir = os.path.join(root_dir, "calc")
 os.makedirs(calc_dir, exist_ok=True)
 
-# ✅ 生データ（CSV）とICA処理済みデータ（TXT）のファイルを選択
+# ✅ 生データ（CSV）とICA処理済みデータのファイルを選択
 raw_data_file = select_file("生データ（.csv）のファイルを選択してください。")
 ica_data_file = select_file("ICA処理済みデータ（.csv）のファイルを選択してください。")
 
@@ -76,31 +76,29 @@ except Exception as e:
 
 # ✅ 電極と対応する列番号
 electrodes = {
-    "F3": 0,   # A列
-    "Fz": 1,   # B列
-    "F4": 2,   # C列
-    "FCz": 3,  # D列
-    "Cz": 4    # E列
+    "F3": 0,
+    "Fz": 1,
+    "F4": 2,
+    "FCz": 3,
+    "Cz": 4
 }
 
 # ✅ 時間データの生成（1行目 = 1[ms], 2行目 = 2[ms], ...）
 if len(ica_data) > 0:
     time_data_ms = np.arange(1, len(ica_data) + 1)
-    print(f"📊 生成された時間データの長さ: {len(time_data_ms)}")
 else:
-    print("⚠️ ICA処理済みデータが空です。")
     raise ValueError("ICA処理済みデータが空です。")
 
 # ✅ TTL信号の取得（生データから）
-ttl_times_ms = raw_data.iloc[5:68, 9].astype(float).values * 1000  # [s] → [ms]に変換
+ttl_times_ms = raw_data.iloc[5:61, 9].astype(float).values * 1000  # [s] → [ms]に変換
 
 # ✅ TTL信号がデータ範囲内か確認して有効なTTLタイミングを取得
 valid_ttl_times = [ttl for ttl in ttl_times_ms if ttl + 2000 <= time_data_ms[-1]]
 
 # ✅ エポック範囲とサンプリング設定
-epoch_start = -1000  # 開始時間（ミリ秒）
-epoch_end = 2000  # 終了時間（ミリ秒）
-num_samples = epoch_end - epoch_start  # サンプル数
+epoch_start = -1000
+epoch_end = 2000
+num_samples = epoch_end - epoch_start
 
 # ✅ 各電極の統合データを保持する辞書
 epoch_summary_data = {electrode: [] for electrode in electrodes.keys()}
@@ -109,37 +107,26 @@ epoch_summary_data = {electrode: [] for electrode in electrodes.keys()}
 epoch_output_dir = os.path.join(calc_dir, "epoch")
 os.makedirs(epoch_output_dir, exist_ok=True)
 
+# ✅ 各電極ごとにエポック処理
 for electrode, col_idx in electrodes.items():
     # ✅ calc/epoch/{電極名} に保存するように変更
     electrode_dir = os.path.join(epoch_output_dir, electrode)
-    os.makedirs(electrode_dir, exist_ok=True)
+    original_plot_dir = os.path.join(electrode_dir, "original")
+    zoomed_plot_dir = os.path.join(electrode_dir, "zoomed")
+    os.makedirs(original_plot_dir, exist_ok=True)
+    os.makedirs(zoomed_plot_dir, exist_ok=True)
 
-    electrode_data = ica_data.iloc[:, col_idx].values  # 電極データを取得
+    electrode_data = ica_data.iloc[:, col_idx].values
 
     for i, ttl in enumerate(valid_ttl_times):
         try:
-            # ✅ TTL信号に完全一致するインデックスを取得
-            ttl_idx_array = np.where(np.round(time_data_ms) == np.round(ttl))[0]
-#           print(f"✅ TTL {ttl} のインデックス: {ttl_idx}")
-        
-            ttl_idx = ttl_idx_array[0]  # 最初のインデックスを使用
-#            print(f"✅ TTL {ttl} のインデックス: {ttl_idx}")
+            ttl_idx = np.where(np.round(time_data_ms) == np.round(ttl))[0][0]
 
-            # ✅ エポック範囲のインデックスを計算
             start_idx = ttl_idx + epoch_start
             end_idx = ttl_idx + epoch_end
-            
-#            print(f"🧩 エポック {i+1}: start_idx={start_idx}, end_idx={end_idx}")
-            
-            # ✅ エポック範囲がデータ範囲内に収まるか確認
-            if start_idx < 0 or end_idx > len(electrode_data):
-                print(f"⚠️ エポック {i+1} の範囲がデータ範囲外です。スキップします。")
-                continue
-            
 
-            # ✅ エポックデータを切り出し
             epoch_data = electrode_data[start_idx:end_idx]
-            epoch_time = time_data_ms[start_idx:end_idx] / 1000  # 秒単位に変換
+            epoch_time = time_data_ms[start_idx:end_idx] / 1000
 
             # ✅ エポックデータを保存
             csv_path = os.path.join(electrode_dir, f'epoch_{i+1}_{electrode}.csv')
@@ -149,51 +136,44 @@ for electrode, col_idx in electrodes.items():
             })
             epoch_df.to_csv(csv_path, index=False, encoding='utf-8-sig')
 
-            # ✅ 波形プロット
+            # ✅ オリジナルサイズのプロット
             plt.figure(figsize=(10, 5))
             plt.plot(epoch_time, epoch_data, label=f'TTL {i+1}')
-            plt.axvline(x=ttl / 1000, color='red', linestyle='--', label='TTL Signal')
-            plt.axvline(x=(ttl + epoch_start) / 1000, color='blue', linestyle='--', label='Epoch Start')
-            plt.axvline(x=(ttl + epoch_end) / 1000, color='green', linestyle='--', label='Epoch End')
-
-            # ✅ プロットのラベル設定
-            x_ticks = np.arange((ttl + epoch_start) / 1000, (ttl + epoch_end) / 1000 + 0.5, 0.5)
-            plt.xticks(ticks=x_ticks, labels=[f"{tick:.3f}" for tick in x_ticks])
-            plt.title(f'{electrode} Epoch for TTL {i+1}')
-            plt.xlabel('Time [s]')
-            plt.ylabel('Amplitude [μV]')
-            plt.yticks(np.arange(-17, 18, 5))
-            plt.grid(which='major', linestyle='-', linewidth=0.5)
-            plt.grid(which='minor', linestyle=':', linewidth=0.5)
-            plt.minorticks_on()
-
-            # ✅ プロットを保存
-            plot_path = os.path.join(electrode_dir, f'epoch_{i+1}_{electrode}.png')
+            plt.axvline(ttl / 1000, color='red', linestyle='--', label='TTL Signal')
+            plt.axvline((ttl + epoch_start) / 1000, color='blue', linestyle='--', label='Epoch Start')
+            plt.axvline((ttl + epoch_end) / 1000, color='green', linestyle='--', label='Epoch End')
+            plt.xticks(fontsize=20)
+            plt.yticks(fontsize=20)
+            plt.title(f'{electrode} Epoch for TTL {i+1}', fontsize=20)
+            plt.xlabel('Time [s]', fontsize=20)
+            plt.ylabel('Amplitude [μV]', fontsize=20)
+            plt.grid(True)
+            plot_path = os.path.join(original_plot_dir, f'epoch_{i+1}_{electrode}.png')
             plt.savefig(plot_path, dpi=300)
             plt.close()
 
-            # ✅ 統合データに追加
-            epoch_summary_data[electrode].append(epoch_data)
+            # ✅ 拡大サイズのプロット
+            plt.figure(figsize=(10, 5))
+            plt.plot(epoch_time, epoch_data, label=f'TTL {i+1}')
+            plt.axvline(ttl / 1000, color='red', linestyle='--', label='TTL Signal')
+            plt.xticks(fontsize=20)
+            plt.yticks(fontsize=20)
+            plt.title(f'{electrode} Zoomed Epoch for TTL {i+1}', fontsize=20)
+            plt.xlabel('Time [s]', fontsize=20)
+            plt.ylabel('Amplitude [μV]', fontsize=20)
+            plt.xlim(-0.5, 0.5)
+            plt.grid(True)
+            zoomed_plot_path = os.path.join(zoomed_plot_dir, f'epoch_{i+1}_{electrode}_zoomed.png')
+            plt.savefig(zoomed_plot_path, dpi=300)
+            plt.close()
 
         except Exception as e:
             print(f"{electrode} - エポック {i+1} の処理中にエラーが発生しました: {e}")
-        
-        
-#        if i == 30:  # エポック31をデバッグ
-#            print(f"🧩 エポック31デバッグ情報")
-#            print(f"🔍 TTL: {ttl}")
-#            print(f"🔍 TTL Index: {ttl_idx}")
-#            print(f"🔍 Start Index: {start_idx}, End Index: {end_idx}")
-#            print(f"🔍 Electrode Data Length: {len(electrode_data)}")
-#            print(f"🔍 Time Data Max: {time_data_ms[-1]}")
-#            print(f"🔍 切り出しデータ長: {end_idx - start_idx}")
-
 
 # ✅ 統合データの保存先ディレクトリを設定
 summary_output_dir = os.path.join(calc_dir, "epoch_summary")
 os.makedirs(summary_output_dir, exist_ok=True)
 
-# ✅ 統合データの保存処理
 for electrode, data in epoch_summary_data.items():
     if data:
         summary_df = pd.DataFrame(np.array(data).T)
@@ -203,4 +183,3 @@ for electrode, data in epoch_summary_data.items():
         print(f"{electrode} の統合データを {summary_csv_path} に保存しました。")
 
 print("すべての処理が完了しました。")
-
