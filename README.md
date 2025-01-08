@@ -15,7 +15,7 @@
 ## Pythonスクリプトの使い方
 
 ### 電極の設定（`1_epoch.py`）
-以下は初期設定。使用する電極に応じて自由に変更可能
+初期設定。使用する電極に応じて自由に変更可能
 
 設定している1〜5などの列番号は、`1_epoch.py`で読み込むICA処理済みデータ（CSVファイル）を指す。
 
@@ -32,40 +32,40 @@ electrodes = {
 ---
 
 ### デフォルトエポック数の設定（`1_epoch.py`）
-以下は初期設定。タスクの試行時間と`EventTime`の回数に応じて自由に変更可能
+初期設定。タスクの試行時間と`EventTime`の回数に応じて自由に変更可能
 
 ```python
 ttl_times_ms = raw_data.iloc[5:61, 9].astype(float).values * 1000  # 生データのTTLを[s]から[ms]に変換
 ```
 
-初期設定では"Event Time"（生データの9列目）の5行目〜61行目、計57個のTTLから57個のエポックデータを算出している。
+初期設定では"Event Time"（生データの9列目）の5行目〜61行目、計57個のTTLから57個のエポックデータを算出する。
 
 **注意:**
-エポックを作成するために必要な時間の脳波データが足りていない場合（最後のTTLなど、TTL発信後2秒経つ前にそのタスクが終了した場合など）は、そのTTLをエポック作成対象から除外される。
+エポックを作成するために必要な時間の脳波データが足りていない場合（最後のTTLなど、TTL発信後2秒経つ前にそのタスクが終了した場合など）は、そのTTLをエポック作成対象から除外する。
 
 ---
 
 ## タスクのエラー率別のスクリプト実行方法
 
 ### Error試行ありの場合
-以下の順番でスクリプトを実行すること。
+以下の順番でスクリプトを実行する。
 
-1. `1_epoch.py`
-2. `2_baseline.py`
-3. `3_sort_err_new.py`
-4. `colave.py`
-5. `5_plot.py`
+1. `1_epoch.py` - エポックの切り出し
+2. `2_baseline.py` - ベースライン補正
+3. `3_sort_err_new.py` - EpochをCorrect試行とError試行に振り分ける
+4. `colave.py` - Correct試行とError試行のエポックの加算平均を計算
+5. `5_plot.py` - `colave.py`で計算した加算平均をプロット
 
 ### Error試行なしの場合（`ros1_ws`の`MS_main.py`で`Errrate=0`に設定した場合）
-以下の順番でスクリプトを実行すること。
+以下の順番でスクリプトを実行する。
 
-1. `1_epoch_noerr.py`
-2. `2_baseline.py`
-3. `3_sort_err_noerr.py`
-4. `colave.py`
-5. `5_plot_noerr.py`
+1. `1_epoch_noerr.py` - エポックの切り出し（Error試行なし）
+2. `2_baseline.py` - ベースライン補正
+3. `3_sort_err_noerr.py` - Correct試行のみに基づいてEpochを振り分ける
+4. `colave.py` - Correct試行のエポックの加算平均を計算
+5. `5_plot_noerr.py` - `colave.py`で計算したCorrect波形をプロット
 
 **注意:**
-- `5_plot_noerr.py`ではCorrect波形しか生成されない。
+- `5_plot_noerr.py`ではCorrect波形しか生成されない
 
 ---
