@@ -1,6 +1,7 @@
 #############################################################################################
 #  2024/12/23 作成
 #  2025/01/06 改訂
+#  2025/01/08 改訂
 #
 # 【4_ave_plot.py の後に実行すること！】
 #
@@ -54,8 +55,10 @@ root_dir = askdirectory(title="解析のルートディレクトリを選択し�
 comp_dir = os.path.join(root_dir, "calc", "comp")
 
 # ✅ プロットの出力先ディレクトリ設定
-plot_output_dir = os.path.join(root_dir, "result")
-os.makedirs(plot_output_dir, exist_ok=True)
+original_plot_dir = os.path.join(root_dir, "result", "original")
+zoomed_plot_dir = os.path.join(root_dir, "result", "zoomed")
+os.makedirs(original_plot_dir, exist_ok=True)
+os.makedirs(zoomed_plot_dir, exist_ok=True)
 
 # 電極リスト
 electrodes = ["Cz", "F3", "F4", "FCz", "Fz"]
@@ -63,27 +66,48 @@ electrodes = ["Cz", "F3", "F4", "FCz", "Fz"]
 # 各電極の比較用CSVファイルを読み込み、プロットを作成
 for electrode in electrodes:
     file_path = os.path.join(comp_dir, electrode, f"{electrode}_comp.csv")
-    
+
     if os.path.exists(file_path):
         # CSVファイルの読み込み
         data = pd.read_csv(file_path)
 
-        # ✅ Correct試行のプロット
+        # ✅ 元の範囲（-1000ms～2000ms）のプロット
         plt.figure(figsize=(10, 6))
         plt.plot(data["Time [ms]"], data["Correct Average [μV]"], label="Correct", color="blue")
         plt.axvline(0, color="brown", linestyle="--", label="TTL Signal")
         plt.axhline(0, color="black", linestyle="-", linewidth=0.8)
-        plt.title(f"{electrode} Correct Trial")
-        plt.xlabel("Time [ms]")
-        plt.ylabel("Amplitude [μV]")
+        plt.title(f"{electrode} Correct Trial", fontsize=20)
+        plt.xlabel("Time [ms]", fontsize=20)
+        plt.ylabel("Amplitude [μV]", fontsize=20)
+        plt.xticks(fontsize=16)
+        plt.yticks(fontsize=16)
         plt.xlim(-1000, 2000)
         plt.ylim(-7, 7)
         plt.grid(True)
-        plt.legend()
-        correct_plot_path = os.path.join(plot_output_dir, f"{electrode}_correct.png")
+        plt.legend(fontsize=18)
+        correct_plot_path = os.path.join(original_plot_dir, f"{electrode}_correct.png")
         plt.savefig(correct_plot_path, dpi=300)
         plt.close()
         print(f"{correct_plot_path} に保存しました。")
+
+        # ✅ 拡大範囲（-500ms～500ms）のプロット
+        plt.figure(figsize=(10, 6))
+        plt.plot(data["Time [ms]"], data["Correct Average [μV]"], label="Correct", color="blue")
+        plt.axvline(0, color="brown", linestyle="--", label="TTL Signal")
+        plt.axhline(0, color="black", linestyle="-", linewidth=0.8)
+        plt.title(f"{electrode} Correct Trial", fontsize=20)
+        plt.xlabel("Time [ms]", fontsize=20)
+        plt.ylabel("Amplitude [μV]", fontsize=20)
+        plt.xticks(ticks=range(-500, 501, 100), fontsize=16)
+        plt.yticks(fontsize=16)
+        plt.xlim(-500, 500)
+        plt.ylim(-7, 7)
+        plt.grid(True)
+        plt.legend(fontsize=18)
+        correct_zoomed_plot_path = os.path.join(zoomed_plot_dir, f"{electrode}_correct_zoomed.png")
+        plt.savefig(correct_zoomed_plot_path, dpi=300)
+        plt.close()
+        print(f"{correct_zoomed_plot_path} に保存しました。")
 
     else:
         print(f"{file_path} が見つかりませんでした。")
