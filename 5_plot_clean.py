@@ -1,6 +1,7 @@
 #############################################################################################
 #  2024/12/23 作成
 #  2025/01/06 改訂
+#  2025/01/08 改訂
 #
 # 【4_ave_plot.py の後に実行すること！】
 #
@@ -40,6 +41,7 @@
 # - F3_error.png
 # - F3_comp.png　など
 #############################################################################################
+
 
 
 import pandas as pd
@@ -109,90 +111,7 @@ for electrode in electrodes:
         plt.savefig(correct_zoomed_plot_path, dpi=300)
         plt.close()
         print(f"{correct_zoomed_plot_path} に保存しました。")
-
-        # ✅ Error試行のプロット（元の範囲）
-        plt.figure(figsize=(10, 6))
-        plt.plot(data["Time [ms]"], data["Error Average [μV]"], label="Error", color="red")
-        plt.axvline(0, color="brown", linestyle="--", label="TTL Signal")
-        plt.axhline(0, color="black", linestyle="-", linewidth=0.8)
-        plt.title(f"{electrode} Error Trial", fontsize=20)
-        plt.xlabel("Time [ms]", fontsize=20)
-        plt.ylabel("Amplitude [μV]", fontsize=20)
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
-        plt.xlim(-1000, 2000)
-        plt.ylim(-7, 7)
-        plt.grid(True)
-        plt.legend(fontsize=18)
-        error_plot_path = os.path.join(original_plot_dir, f"{electrode}_error.png")
-        plt.savefig(error_plot_path, dpi=300)
-        plt.close()
-        print(f"{error_plot_path} に保存しました。")
-
-        # ✅ Error試行のプロット（拡大範囲）
-        plt.figure(figsize=(10, 6))
-        plt.plot(data["Time [ms]"], data["Error Average [μV]"], label="Error", color="red")
-        plt.axvline(0, color="brown", linestyle="--", label="TTL Signal")
-        plt.axhline(0, color="black", linestyle="-", linewidth=0.8)
-        plt.title(f"{electrode} Error Trial", fontsize=20)
-        plt.xlabel("Time [ms]", fontsize=20)
-        plt.ylabel("Amplitude [μV]", fontsize=20)
-        plt.xticks(ticks=range(-500, 1001, 500), fontsize=16)
-        plt.minorticks_on()
-        plt.gca().xaxis.set_minor_locator(plt.MultipleLocator(100))  # 縦線を100msごとに
-        plt.yticks(fontsize=16)
-        plt.ylim(-7, 7)
-        plt.grid(True)
-        plt.legend(fontsize=18)
-        error_zoomed_plot_path = os.path.join(zoomed_plot_dir, f"{electrode}_error_zoomed.png")
-        plt.savefig(error_zoomed_plot_path, dpi=300)
-        plt.close()
-        print(f"{error_zoomed_plot_path} に保存しました。")
-
-        # ✅ 比較プロット（元の範囲）
-        plt.figure(figsize=(10, 6))
-        plt.plot(data["Time [ms]"], data["Correct Average [μV]"], label="Correct", color="blue")
-        plt.plot(data["Time [ms]"], data["Error Average [μV]"], label="Error", color="red")
-        plt.plot(data["Time [ms]"], data["Difference [μV]"], label="Difference", color="green")
-        plt.axvline(0, color="brown", linestyle="--", label="TTL Signal")
-        plt.axhline(0, color="black", linestyle="-", linewidth=0.8)
-        plt.title(f"{electrode} Comparison", fontsize=20)
-        plt.xlabel("Time [ms]", fontsize=20)
-        plt.ylabel("Amplitude [μV]", fontsize=20)
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
-        plt.xlim(-1000, 2000)
-        plt.ylim(-7, 7)
-        plt.grid(True)
-        plt.legend(fontsize=18)
-        comp_plot_path = os.path.join(original_plot_dir, f"{electrode}_comp.png")
-        plt.savefig(comp_plot_path, dpi=300)
-        plt.close()
-        print(f"{comp_plot_path} に保存しました。")
-
-        # ✅ 比較プロット（拡大範囲）
-        plt.figure(figsize=(10, 6))
-        plt.plot(data["Time [ms]"], data["Correct Average [μV]"], label="Correct", color="blue")
-        plt.plot(data["Time [ms]"], data["Error Average [μV]"], label="Error", color="red")
-        plt.plot(data["Time [ms]"], data["Difference [μV]"], label="Difference", color="green")
-        plt.axvline(0, color="brown", linestyle="--", label="TTL Signal")
-        plt.axhline(0, color="black", linestyle="-", linewidth=0.8)
-        plt.title(f"{electrode} Comparison", fontsize=20)
-        plt.xlabel("Time [ms]", fontsize=20)
-        plt.ylabel("Amplitude [μV]", fontsize=20)
-        plt.xticks(ticks=range(-500, 1001, 500), fontsize=16)
-        plt.minorticks_on()
-        plt.gca().xaxis.set_minor_locator(plt.MultipleLocator(100))  # 縦線を100msごとに
-        plt.yticks(fontsize=16)
-        plt.xlim(-500, 1000)
-        plt.ylim(-7, 7)
-        plt.grid(True)
-        plt.legend(fontsize=18)
-        comp_zoomed_plot_path = os.path.join(zoomed_plot_dir, f"{electrode}_comp_zoomed.png")
-        plt.savefig(comp_zoomed_plot_path, dpi=300)
-        plt.close()
-        print(f"{comp_zoomed_plot_path} に保存しました。")
-
+        
     else:
         print(f"{file_path} が見つかりませんでした。")
 

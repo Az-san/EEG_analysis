@@ -59,15 +59,14 @@ for file_name in csv_files:
     # ✅ CSVファイルをロード
     data = pd.read_csv(file_path)
 
-    # ✅ カラム名を修正 (Epoch 1, Epoch 2, ... -> 1, 2, ...)
-    new_columns = [str(i + 1) if col.startswith("Epoch") else col for i, col in enumerate(data.columns)]
-    data.columns = new_columns
+    # ✅ TIME列を除外し、エポックデータを2列目以降から処理
+    epochs_data = data.iloc[:, 1:]
 
-    # ✅ 各エポックの2行目から1001行目（0インデックスでは1から1000）の平均を計算
-    epoch_means = data.iloc[1:1001, :].mean()
+    # ✅ -1000msから0msのデータを抽出
+    baseline_range = epochs_data.iloc[:1001, :]  # 0msは1001行目
 
-    # ✅ エポックごとの平均値を加算して、全体の平均を計算
-    baseline_value = epoch_means.mean()
+    # ✅ 各エポックの平均を計算し、全エポックの平均を合計・平均化
+    baseline_value = baseline_range.mean(axis=1).mean()
 
     # ✅ ベースライン補正値を記録
     electrode_name = file_name.replace("_epoch_summary.csv", "")
@@ -76,11 +75,12 @@ for file_name in csv_files:
     print(f"{file_name} のベースライン補正値: {baseline_value}")
 
     # ✅ ベースライン補正を実施
-    baseline_corrected_data = data - baseline_value
+    baseline_corrected_data = epochs_data - baseline_value
+    baseline_corrected_data.insert(0, "TIME", data["TIME"])  # TIME列を復元
 
     # ✅ 補正後のデータを新しいCSVファイルとして保存
     output_file_path = os.path.join(output_dir, f"{electrode_name}_epoch_base.csv")
-    baseline_corrected_data.to_csv(output_file_path, index_label="Epoch", encoding='utf-8-sig')
+    baseline_corrected_data.to_csv(output_file_path, index=False, encoding='utf-8-sig')
 
     print(f"{file_name} のベースライン補正後のデータを保存しました: {output_file_path}")
 
@@ -90,5 +90,3 @@ baseline_values_file_path = os.path.join(output_dir, "baseline_values.csv")
 baseline_values_df.to_csv(baseline_values_file_path, index=False, encoding='utf-8-sig')
 
 print(f"ベースライン補正値を保存しました: {baseline_values_file_path}")
-
-
