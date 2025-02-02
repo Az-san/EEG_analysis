@@ -47,7 +47,7 @@ ttl_times_ms = raw_data.iloc[5:61, 9].astype(float).values * 1000  # 生デー�
 
 ## タスクのエラー率別のスクリプト実行方法
 
-### Error試行ありの場合
+### サンプリング周波数1000Hz、エラー率10%試行の場合
 以下の順番でスクリプトを実行する。
 
 1. `1_epoch.py` - エポックの切り出し
@@ -56,7 +56,7 @@ ttl_times_ms = raw_data.iloc[5:61, 9].astype(float).values * 1000  # 生デー�
 4. `4_colave.py` - Correct試行とError試行のエポックの加算平均を計算
 5. `5_plot.py` - `4_colave.py`で計算した加算平均をプロット
 
-### Error試行なしの場合（`ros1_ws`の`MS_main.py`で`Errrate=0`に設定した場合）
+### サンプリング周波数1000Hz、エラーなし試行の場合
 以下の順番でスクリプトを実行する。
 
 1. `1_epoch_clean.py` - エポックの切り出し（Error試行なし）
@@ -65,7 +65,25 @@ ttl_times_ms = raw_data.iloc[5:61, 9].astype(float).values * 1000  # 生デー�
 4. `4_colave.py` - Correct試行のエポックの加算平均を計算
 5. `5_plot_clean.py` - `4_colave.py`で計算したCorrect波形をプロット
 
-**注意:**
-- `5_plot_clean.py`ではCorrect波形しか生成されない
+### サンプリング周波数1024Hz（バンドパスフィルタ2-10Hz適用）の場合
+以下の順番でスクリプトを実行する。
+
+1. `0_before_10.py` - 事前処理
+2. `1_epoch_10.py` - エポックの切り出し
+3. `2_baseline.py` - ベースライン補正
+4. `3_sort_10.py` - Epochの分類
+5. `4_colave.py` - 加算平均の計算
+6. `5_plot.py` - 波形のプロット
+
+---
+
+## `pkl_analysis.py` について
+`pkl_analysis.py`は、ROSの迷路探索で得たシステムのpklデータ（`robot_pkg/data`にあるログファイル）を使用して、各エポックをCorrect試行とError試行に分類します。この際、`/log/pkl_analysis`ディレクトリ内に`combined_data.csv`が存在しないと、`3_sort.py`は正常に動作しない。
+
+---
+
+## スクリプト末尾の命名規則について
+- `clean`：エラー試行なしバージョンに対応したスクリプト。例えば、`3_sort_clean.py`ではError試行に振り分ける必要がないため、Correct試行のみのCSVファイルを作成する。同様に、`5_plot_clean.py`ではError試行のグラフ生成が省略されます。
+- `10`：バンドパスフィルタリングを2-10Hzに適用したデータ解析用のスクリプト。元の2-40Hzフィルタデータと異なる計算手法が必要なため、専用のスクリプトとして作成されている。
 
 ---
