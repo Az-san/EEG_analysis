@@ -78,7 +78,7 @@ ttl_times_ms = raw_data.iloc[5:61, 9].astype(float).values * 1000  # 生デー�
 ---
 
 ## `pkl_analysis.py` について
-`pkl_analysis.py`は、ROSの迷路探索で得たシステムのpklデータ（`robot_pkg/data`にあるログファイル）を使用して、各エポックをCorrect試行とError試行に分類します。この際、`/log/pkl_analysis`ディレクトリ内に`combined_data.csv`が存在しないと、`3_sort.py`は正常に動作しない。
+`pkl_analysis.py`は、ROSの迷路探索で得たシステムのpklデータ（`robot_pkg/data`にあるログファイル）を使用して、各エポックをCorrect試行とError試行に分類する。この際、`/log/pkl_analysis`ディレクトリ内に`combined_data.csv`が存在しないと、`3_sort.py`は正常に動作しない。
 
 ---
 
