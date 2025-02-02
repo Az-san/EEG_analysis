@@ -1,12 +1,12 @@
 #############################################################################################
 #  2024/12/23 作成
-#  2025/01/06 改訂
+#  2025/01/15 改訂
 #
-#  --1000Hz, エラーなしセッション用--
+#  --1024Hz, エラーなしセッション用--
 # 【2_baseline.pyの後に実行すること】
 #
-# 【概要】Correct試行の分類（Error試行なし）
-# エポックデータをCorrect試行に分類し、データを"calc/correct"ディレクトリに保存する。
+# 【概要】Correct試行の分類（Error試行なし、2-10Hzフィルタ版）
+# エポックデータをCorrect試行に分類し、"calc/correct"ディレクトリに保存する。
 #
 # 【処理内容】
 # 1. "baseline"ディレクトリ内の各電極のエポックデータを読み込み
@@ -61,7 +61,7 @@ for electrode in electrodes:
         electrode_data = pd.read_csv(electrode_file, index_col=0)
 
         # 存在するエポック番号のみ抽出
-        valid_correct_epochs = [epoch for epoch in correct_epochs if epoch in electrode_data.columns]
+        valid_correct_epochs = [f"Epoch {epoch}" for epoch in correct_epochs if f"Epoch {epoch}" in electrode_data.columns]
 
         # Correct試行データの抽出と保存
         correct_data = electrode_data.loc[:, valid_correct_epochs]
