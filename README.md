@@ -51,29 +51,32 @@ ttl_times_ms = raw_data.iloc[5:61, 9].astype(float).values * 1000  # 生デー�
 以下の順番でスクリプトを実行する。
 
 1. `1_epoch.py` - エポックの切り出し
-2. `2_baseline.py` - ベースライン補正
-3. `3_sort.py` - EpochをCorrect試行とError試行に振り分ける
-4. `4_colave.py` - Correct試行とError試行のエポックの加算平均を計算
-5. `5_plot.py` - `4_colave.py`で計算した加算平均をプロット
+2. `1_plot.py` - エポック波形プロット
+3. `2_baseline.py` - ベースライン補正
+4. `3_sort.py` - EpochをCorrect試行とError試行に振り分ける
+5. `4_colave.py` - Correct試行とError試行のエポックの加算平均を計算
+6. `5_plot.py` - `4_colave.py`で計算した加算平均をプロット
 
 ### サンプリング周波数1000Hz、エラーなし試行の場合
 以下の順番でスクリプトを実行する。
 
 1. `1_epoch_clean.py` - エポックの切り出し（Error試行なし）
-2. `2_baseline.py` - ベースライン補正
-3. `3_sort_clean.py` - Correct試行のみに基づいてEpochを振り分ける
-4. `4_colave.py` - Correct試行のエポックの加算平均を計算
-5. `5_plot_clean.py` - `4_colave.py`で計算したCorrect波形をプロット
+2. `1_plot.py` - エポック波形プロット
+3. `2_baseline.py` - ベースライン補正
+4. `3_sort_clean.py` - Correct試行のみに基づいてEpochを振り分ける
+5. `4_colave.py` - Correct試行のエポックの加算平均を計算
+6. `5_plot_clean.py` - `4_colave.py`で計算したCorrect波形をプロット
 
 ### サンプリング周波数1024Hz（バンドパスフィルタ2-10Hz適用）の場合
 以下の順番でスクリプトを実行する。
 
 1. `0_before_10.py` - 事前処理
 2. `1_epoch_10.py` - エポックの切り出し
-3. `2_baseline.py` - ベースライン補正
-4. `3_sort_10.py` - Epochの分類
-5. `4_colave.py` - 加算平均の計算
-6. `5_plot.py` - 波形のプロット
+3. `1_plot.py` - エポック波形プロット
+4. `2_baseline.py` - ベースライン補正
+5. `3_sort_10.py` - Epochの分類
+6. `4_colave.py` - 加算平均の計算
+7. `5_plot.py` - 波形のプロット
 
 ---
 
