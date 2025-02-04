@@ -65,15 +65,15 @@ def plot_data(data, electrode, zoom=False):
     if zoom:
         plt.xlabel("Time [ms]", fontsize=40, labelpad=20)
         plt.xlim(-400, 1000)
-        plt.xticks(ticks=[-400, -200, 0, 200, 400, 600, 800, 1000], fontsize=25)
+        plt.xticks(ticks=[-400, -200, 0, 200, 400, 600, 800, 1000], fontsize=30)
     else:
         plt.xlabel("Time [s]", fontsize=40, labelpad=20)
         plt.xlim(-1000, 2000)
         plt.xticks(ticks=[-1000, -500, 0, 500, 1000, 1500, 2000], 
-                   labels=["-1", "-0.5", "0", "0.5", "1", "1.5", "2"], fontsize=25)
+                   labels=["-1", "-0.5", "0", "0.5", "1", "1.5", "2"], fontsize=30)
     
     plt.ylabel("Amplitude [μV]", fontsize=40, labelpad=20)
-    plt.yticks(fontsize=25)
+    plt.yticks(fontsize=30)
     plt.ylim(-7, 7)
 
     plt.legend(fontsize=30, loc='upper right')
