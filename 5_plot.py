@@ -45,33 +45,46 @@ electrodes = ["Cz", "F3", "F4", "FCz", "Fz"]
 
 # プロット作成関数
 def plot_data(data, electrode, zoom=False):
-    plt.figure(figsize=(10, 6))
-    plt.plot(data["Time [ms]"], data["Correct Average [μV]"], label="Correct", color="blue")
-    plt.plot(data["Time [ms]"], data["Error Average [μV]"], label="Error", color="red")
-    plt.plot(data["Time [ms]"], data["Difference [μV]"], label="Difference", color="green")
+    plt.figure(figsize=(16, 9))
+    
+    # 線を太くするために linewidth=3 を追加
+    plt.plot(data["Time [ms]"], data["Correct Average [μV]"], label="Correct", color="blue", linewidth=3)
+    plt.plot(data["Time [ms]"], data["Error Average [μV]"], label="Error", color="red", linewidth=3)
+    plt.plot(data["Time [ms]"], data["Difference [μV]"], label="Difference", color="green", linewidth=3)
+    
     if SHOW_TTL:
-        plt.axvline(0, color="brown", linestyle="--", label="TTL Signal")
-    plt.axhline(0, color="black", linestyle="--", linewidth=0.8)
-    plt.axvline(0, color="black", linestyle="--", linewidth=0.8)
+        plt.axvline(0, color="brown", linestyle="--", label="TTL Signal", linewidth=2)
+    
+    # 基準線も少し太くする
+    plt.axhline(0, color="black", linestyle="--", linewidth=1.5)
+    plt.axvline(0, color="black", linestyle="--", linewidth=1.5)
+
     title = f"{electrode}" if not zoom else f"{electrode}"
-    plt.title(title, fontsize=20)
+    plt.title(title, fontsize=50)
+
     if zoom:
-        plt.xlabel("Time [ms]", fontsize=20)
+        plt.xlabel("Time [ms]", fontsize=40, labelpad=20)
         plt.xlim(-400, 1000)
-        plt.xticks(ticks=[-400, -200, 0, 200, 400, 600, 800, 1000], fontsize=16)
+        plt.xticks(ticks=[-400, -200, 0, 200, 400, 600, 800, 1000], fontsize=25)
     else:
-        plt.xlabel("Time [s]", fontsize=20)
+        plt.xlabel("Time [s]", fontsize=40, labelpad=20)
         plt.xlim(-1000, 2000)
-        plt.xticks(ticks=[-1000, -500, 0, 500, 1000, 1500, 2000], labels=["-1", "-0.5", "0", "0.5", "1", "1.5", "2"], fontsize=16)
-    plt.ylabel("Amplitude [μV]", fontsize=20)
-    plt.yticks(fontsize=16)
+        plt.xticks(ticks=[-1000, -500, 0, 500, 1000, 1500, 2000], 
+                   labels=["-1", "-0.5", "0", "0.5", "1", "1.5", "2"], fontsize=25)
+    
+    plt.ylabel("Amplitude [μV]", fontsize=40, labelpad=20)
+    plt.yticks(fontsize=25)
     plt.ylim(-7, 7)
 
-    plt.legend(fontsize=18)
+    plt.legend(fontsize=30, loc='upper right')
+    plt.tight_layout()
+
     file_suffix = "zoomed" if zoom else "original"
     file_path = os.path.join(result_dir, f"{electrode}_{file_suffix}.png")
     plt.savefig(file_path, dpi=300)
     plt.close()
+
+
 
 # 各電極の比較用CSVファイルを読み込み、プロットを作成
 for electrode in electrodes:
